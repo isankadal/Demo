@@ -1,39 +1,58 @@
 package com.tonetag.firstrun;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 
 
 public class PinActivity extends ActionBarActivity {
+    private EditText et_pin;
+    private TextView tv_inform;
+
+    private SharedPreferences mSharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pin);
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_pin, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        mSharedPreferences = getSharedPreferences(Controller.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        if (mSharedPreferences.contains("pin")){
+            setContentView(R.layout.activity_pin);
+        }else{
+            Intent i  = new Intent(this, ChoicePage.class);
+            startActivity(i);
+            finish();
         }
 
-        return super.onOptionsItemSelected(item);
+        et_pin = (EditText) findViewById(R.id.editText);
+        tv_inform = (TextView) findViewById(R.id.textView);
+    }
+
+    public void onClick(View view){
+        String pin = et_pin.getText().toString();
+
+        String storedPin = mSharedPreferences.getString("pin","1234");
+
+        if(TextUtils.isEmpty(pin)){
+            et_pin.setError("PIN must not empty");
+            return;
+        }
+
+        if(pin.equals(storedPin)){
+            tv_inform.setTextColor(Color.GREEN);
+            tv_inform.setText("Pin Matches");
+        }else{
+            tv_inform.setTextColor(Color.RED);
+            tv_inform.setText("Pin doesn't match");
+        }
+
     }
 }
